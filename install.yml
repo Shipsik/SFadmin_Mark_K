@@ -1,0 +1,63 @@
+---
+
+- hosts: ubuntu.my
+  become: yes
+  tasks:
+  -  name: Install zabbix-agent on RedHat Family
+     yum:
+        name=zabbix-agent
+        state=latest
+     when:
+        ansible_os_family == "RedHat"
+     notify:
+        zabbix-agent systemd
+  -  name: Install zabbix-agent on Ubuntu
+     apt:
+        name=zabbix-agent
+        state=latest
+     when:
+        ansible_os_family == "Debian"
+     notify:
+        zabbix-agent systemd
+  handlers:
+  - name: zabbix-agent systemd
+    systemd:
+     name: zabbix-agent.service
+     enabled: yes
+     state: started
+
+
+
+- hosts: ubuntu.my
+  become: yes
+  tasks:
+  -  name: Install zabbix-server-mysql on RedHat Family
+     yum:
+        name=zabbix-server-mysql
+        state=latest
+        name=zabbix-frontend-php
+        state=latest
+        name=zabbix-nginx-conf
+        state=latest
+     when:
+        ansible_os_family == "RedHat"
+     notify:
+        zabbix-server systemd
+  -  name: Install zabbix-server on Ubuntu
+     apt:
+        name=zabbix-server-mysql
+        state=latest
+        name=zabbix-frontend-php
+        state=latest
+        name=zabbix-nginx-conf
+        state=latest
+     when:
+        ansible_os_family == "Debian"
+     notify:
+        zabbix-server systemd
+  handlers:
+  - name: zabbix-server systemd
+    systemd:
+     name: zabbix-server.service
+     enabled: yes
+     state: started
