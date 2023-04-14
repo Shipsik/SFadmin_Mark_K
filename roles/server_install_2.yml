@@ -1,0 +1,100 @@
+---
+- name: Установка и запуск сервисов на втором сервере
+  hosts: ubuntu.my
+  become: true
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install and configure nginx
+      apt:
+        name: nginx
+        state: present
+      notify:
+        - start nginx
+
+    - name: Install and configure Apache
+      apt:
+        name: apache2
+        state: present
+      notify:
+        - start apache
+
+    - name: Change Apache port to 8080
+      lineinfile:
+        path: /etc/apache2/ports.conf
+        regexp: '^Listen '
+        line: 'Listen 8080'
+        state: present
+
+    - name: restart apache
+      service:
+        name: apache2
+        state: restarted
+
+    - name: Install and configure PHP
+      apt:
+        name: php
+        state: present
+
+    - name: Install and configure Zabbix-agent
+      apt:
+        name: zabbix-agent
+        state: present
+      vars:
+        zabbix_server_ip: 84.201.155.217
+      notify:
+        - start zabbix-agent
+
+    - name: Install and configure bind
+      apt:
+        name: bind9
+        state: present
+
+    - name: Install mail
+      apt:
+        name:
+          - postfix
+          - dovecot-core
+          - dovecot-imapd
+          - dovecot-pop3d
+          - roundcube
+        state: present
+      notify:
+        - start postfix
+        - start dovecot
+
+    - name: Copy package files
+      copy:
+        src: "/home/mark/install_filebeat_ansible/filebeat-8.6.2-amd64.deb"
+        dest: "/tmp/filebeat-8.6.2-amd64.deb"
+        mode: '0644'
+      register: copy_result
+
+    - name: Debug
+      debug:
+        var: copy_result
+ 
+    - name: Install packages
+      apt:
+        deb: "/tmp/filebeat-8.6.2-amd64.deb"
+        state: present
+      notify:
+        - start filebeat
+
+    - name: Start and enable services
+      systemd:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+      loop:
+        - nginx
+        - apache2
+        - zabbix-agent
+        - bind9
+        - postfix
+        - dovecot
+        - filebeat
+
