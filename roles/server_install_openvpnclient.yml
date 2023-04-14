@@ -1,0 +1,27 @@
+- name: Install OpenVPN client and config file on Ubuntu and CentOS servers
+  hosts: ubuntu.my, centos.my
+  become: true
+  tasks:
+    - name: Install OpenVPN client on Ubuntu
+      apt:
+        name: openvpn
+        state: present
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04'
+
+    - name: Install OpenVPN client on CentOS
+      yum:
+        name: openvpn
+        state: present
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+    - name: Copy OpenVPN client configuration file to remote server
+      copy:
+        src: /etc/openvpn/clients/mark/
+        dest: /etc/openvpn/
+        mode: '0644'
+
+    - name: Check OpenVPN client installation
+      command: which openvpn
+      register: result
+      failed_when: result.rc != 0
+
