@@ -1,0 +1,29 @@
+# Global settings for SFadmin.Ultra solution
+
+## Build Configuration
+[MSBuild]
+# Enable .NET 9 features
+DotNetCoreVersion = 9.0
+
+## Code Style
+[*.cs]
+indent_style = space
+indent_size = 4
+tab_width = 4
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+## Naming Conventions
+dotnet_naming_symbols.interface.applicable_kinds = interface
+dotnet_naming_symbols.interface.required_modifiers = public
+dotnet_naming_symbols.interface.required_accessibility = public
+
+dotnet_naming_styles.interface_style.capitalization = PascalCase
+dotnet_naming_styles.interface_style.required_suffix = 
+
+dotnet_naming_rules.interfaces_should_be_capitalized.symbols = interface
+dotnet_naming_rules.interfaces_should_be_capitalized.style = interface_style
+dotnet_naming_rules.interfaces_should_be_capitalized.severity = suggestion
+
+## Null Handling
+dotnet_code_quality.null_checking_style = modern
